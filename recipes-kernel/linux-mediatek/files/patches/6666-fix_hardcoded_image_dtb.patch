@@ -1,0 +1,56 @@
+From 769dac40c0324661568a546fd10828773ab70c89 Mon Sep 17 00:00:00 2001
+From: Santiago Hormazabal <santiagohssl@gmail.com>
+Date: Sun, 2 Apr 2023 23:07:35 +0000
+Subject: [PATCH 1/1] fix hardcoded image dtb on kernel
+
+---
+ arch/mips/kernel/head.S | 4 ++++
+ arch/mips/ralink/of.c   | 8 ++++++--
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/arch/mips/kernel/head.S b/arch/mips/kernel/head.S
+index 61b73580b..815490ecb 100644
+--- a/arch/mips/kernel/head.S
++++ b/arch/mips/kernel/head.S
+@@ -79,6 +79,10 @@ FEXPORT(__kernel_entry)
+ 	j	kernel_entry
+ #endif /* CONFIG_BOOT_RAW */
+ 
++	.ascii  "OWRTDTB:"
++	EXPORT(__image_dtb)
++	.fill   0x4000
++
+ 	__REF
+ 
+ NESTED(kernel_entry, 16, sp)			# kernel entry point
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index 8e613ff98..7432f28e8 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -64,6 +64,8 @@ static int __init early_init_dt_find_memory(unsigned long node,
+ 	return 0;
+ }
+ 
++extern struct boot_param_header __image_dtb;
++
+ void __init plat_mem_setup(void)
+ {
+ 	void *dtb = NULL;
+@@ -75,10 +77,12 @@ void __init plat_mem_setup(void)
+ 	 * parsed resulting in our memory appearing. fw_passed_dtb is used
+ 	 * by CONFIG_MIPS_APPENDED_RAW_DTB as well.
+ 	 */
+-	if (fw_passed_dtb)
++	/*if (fw_passed_dtb)
+ 		dtb = (void *)fw_passed_dtb;
+ 	else if (&__dtb_start != &__dtb_end)
+-		dtb = (void *)__dtb_start;
++		dtb = (void *)__dtb_start;*/
++
++	dtb = &__image_dtb;
+ 
+ 	__dt_setup_arch(dtb);
+ 
+-- 
+2.33.1
+

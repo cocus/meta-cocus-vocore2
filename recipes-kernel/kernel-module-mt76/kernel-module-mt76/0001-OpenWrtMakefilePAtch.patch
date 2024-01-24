@@ -1,0 +1,36 @@
+From 40e0f91f160c1237bbad46c494ddb7c132e33c5d Mon Sep 17 00:00:00 2001
+From: Santiago Hormazabal <santiagohssl@gmail.com>
+Date: Sun, 16 Apr 2023 23:47:44 +0000
+Subject: [PATCH 1/1] OpenWrtMakefilePAtch
+
+---
+ Makefile | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 98115c66..8f36071e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -32,7 +32,18 @@ mt76-connac-lib-y := mt76_connac_mcu.o mt76_connac_mac.o
+ 
+ obj-$(CONFIG_MT76x0_COMMON) += mt76x0/
+ obj-$(CONFIG_MT76x2_COMMON) += mt76x2/
+-obj-$(CONFIG_MT7603E) += mt7603/
++obj-m += mt7603/
+ obj-$(CONFIG_MT7615_COMMON) += mt7615/
+ obj-$(CONFIG_MT7915E) += mt7915/
+ obj-$(CONFIG_MT7921_COMMON) += mt7921/
++
++
++SRC := $(shell pwd)
++
++all:
++	$(MAKE) -C $(KERNEL_SRC) M=$(SRC)
++
++modules_install:
++	$(MAKE) -C $(KERNEL_SRC) M=$(SRC) modules_install
++clean:
++	@rm *.o || true
+-- 
+2.33.1
+
